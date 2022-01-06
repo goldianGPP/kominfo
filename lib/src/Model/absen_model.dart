@@ -7,6 +7,8 @@ class AbsenModel{
   final String tandatangan;
   final String nip;
   final String tgl_presensi;
+  final String golongan;
+  final String definisi;
 
   AbsenModel({
     required this.id_absen,
@@ -17,6 +19,8 @@ class AbsenModel{
     required this.tandatangan,
     required this.nip,
     required this.tgl_presensi,
+    required this.golongan,
+    required this.definisi,
   });
 
   factory AbsenModel.fromJson(dynamic json) {
@@ -29,6 +33,8 @@ class AbsenModel{
       tandatangan: json['tandatangan'],
       nip: json['nip'],
       tgl_presensi: json['tgl_presensi'],
+      golongan: json['golongan'],
+      definisi: json['definisi'],
     );
   }
 
@@ -42,6 +48,8 @@ class AbsenModel{
         '${this.tugas}, '
         '${this.tandatangan}, '
         '${this.tgl_presensi} '
+        '${this.golongan} '
+        '${this.definisi} '
         '}';
   }
 }

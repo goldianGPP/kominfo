@@ -12,7 +12,7 @@ class AbsenController {
     return await DAO().fetchAbsen(id, date);
   }
 
-  Future<List<AbsenModel>> fetchAllAbsen() async {
-    return await DAO().fetchAllAbsen();
+  Future<List<AbsenModel>> fetchAllAbsen(month, year) async {
+    return await DAO().fetchAllAbsen(month, year);
   }
 }

@@ -8,7 +8,7 @@ import 'package:kominfo/src/View/toast.dart';
 import 'package:path/path.dart';
 
 class DAO{
-  final String base_url = "http://192.168.30.41:8082/kp/arsipIn/";
+  final String base_url = "http://192.168.86.41:8082/kp/arsipIn/";
 
   //Absen
   Future<List<AbsenModel>> fetchAbsen(id, date) async {
@@ -25,9 +25,9 @@ class DAO{
     }
   }
 
-  Future<List<AbsenModel>> fetchAllAbsen() async {
+  Future<List<AbsenModel>> fetchAllAbsen(month, year) async {
     final response = await http.get(
-      Uri.parse('${base_url}api/absen/data/'),
+      Uri.parse('${base_url}api/absen/data/$year/$month'),
     );
 
     if (response.statusCode == 200) {

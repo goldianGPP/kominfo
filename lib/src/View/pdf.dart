@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 // ignore: import_of_legacy_library_into_null_safe
+import 'package:basic_utils/basic_utils.dart';
 import 'package:date_format/date_format.dart';
 import 'package:date_util/date_util.dart';
 import 'package:fraction/fraction.dart';
@@ -154,31 +155,43 @@ class Pdf{
 
   // ignore: non_constant_identifier_names
   Future<void> setTableValues(grid, header, days, format, dt) async {
-    List<AbsenModel> absents = await AbsenController().fetchAllAbsen();
+    List<AbsenModel> absents = await AbsenController().fetchAllAbsen(dt.month, dt.year);
 
+    String temp = ""; int idx;
     for(int i=0; i<absents.length; i++){
-      PdfGridRow row = grid.rows.add();
-      row.cells[0].value = (i+1).toString();
-      row.cells[1].value = '${absents.elementAt(i).nama}\n${absents.elementAt(i).tugas}\n${absents.elementAt(i).nip}';
-      row.cells[2].value = absents.elementAt(i).jabatan;
+      if(temp != absents.elementAt(i).id_pengguna){
+        PdfGridRow row = grid.rows.add();
+        row.cells[0].value = (i+1).toString();
+        row.cells[1].value = '${absents.elementAt(i).nama}\n'
+            '${absents.elementAt(i).definisi} (${StringUtils.addCharAtPosition(absents.elementAt(i).golongan, '/', absents.elementAt(i).golongan.length-2)})\n'
+            '${absents.elementAt(i).nip}';
+        row.cells[2].value = absents.elementAt(i).jabatan;
 
-      row.cells[0].stringFormat = format;
-      row.cells[2].stringFormat = format;
+        row.cells[0].stringFormat = format;
+        row.cells[2].stringFormat = format;
 
-      for(int j=0; j<days; j++){
-        if(isWeekend(j,dt)){
-          row.cells[j+3].style.backgroundBrush = PdfSolidBrush(PdfColor(204, 0, 61));
-        }
-        else{
-          dt = DateTime(dt.year,dt.month,(j+1));
-          if(absents.elementAt(i).tgl_presensi == dt.toString().substring(0,10)){
-            var url = '${DAO().base_url}${absents.elementAt(i).tandatangan}';
-            var response = await get(Uri.parse(url));
-            row.cells[j+3].imagePosition = PdfGridImagePosition.fit;
-            row.cells[j+3].style.backgroundImage = PdfBitmap(response.bodyBytes.toList());
+        idx = i;
+        for(int j=0; j<days; j++){
+          if(isWeekend(j,dt)){
+            row.cells[j+3].style.backgroundBrush = PdfSolidBrush(PdfColor(204, 0, 61));
+            dt = DateTime(dt.year,dt.month,(j+1));
+            if(absents.elementAt(idx).tgl_presensi == dt.toString().substring(0,10).trim()){
+              idx += 1;
+            }
+          }
+          else{
+            dt = DateTime(dt.year,dt.month,(j+1));
+            if(absents.elementAt(idx).tgl_presensi == dt.toString().substring(0,10).trim()){
+              var url = '${DAO().base_url}${absents.elementAt(idx).tandatangan}';
+              var response = await get(Uri.parse(url));
+              row.cells[j+3].imagePosition = PdfGridImagePosition.fit;
+              row.cells[j+3].style.backgroundImage = PdfBitmap(response.bodyBytes.toList());
+              idx += 1;
+            }
           }
         }
       }
+      temp = absents.elementAt(i).id_pengguna;
     }
   }
 
