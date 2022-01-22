@@ -1,10 +1,15 @@
 // ignore: import_of_legacy_library_into_null_safe
+import 'dart:io';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:date_util/date_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:kominfo/src/Controller/absen_controller.dart';
 import 'package:kominfo/src/Model/absen_model.dart';
 import 'package:kominfo/src/View/pdf.dart';
+import 'package:kominfo/src/View/tampil_file.dart';
+import 'package:kominfo/src/View/tampil_libur.dart';
+import 'package:kominfo/src/View/toast.dart';
 import 'package:kominfo/src/Widget/progress_dialog.dart';
 import 'package:kominfo/src/Widget/shared_preferences.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -104,14 +109,7 @@ class _HomeState extends State<Home> {
     bool pressAttention = false;
     ProgressDialog? pr = PG(context).setPg("menunggu...");
 
-    return WillPopScope(
-      onWillPop: () async {
-        if(isDialOpen.value){
-          return isDialOpen.value = false;
-        }
-        return true;
-      },
-      child: Scaffold(
+    return Scaffold(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
@@ -166,6 +164,117 @@ class _HomeState extends State<Home> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child:Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      elevation: 10,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding:  const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const TampilLibur()),
+                                );
+                              },
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  child: Column(
+                                    children: const [
+                                      Icon(
+                                        Icons.list,
+                                        color: Colors.blueAccent,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                        child: Text("daftar Libur"),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding:  const EdgeInsets.fromLTRB(3, 10, 3, 10),
+                            child: GestureDetector(
+                              onTap: () async {
+                                await pr!.show();
+                                await Pdf().createAbsenPDF(selectedDate);
+                                await pr.hide();
+                              },
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Padding(
+                                  padding:  const EdgeInsets.fromLTRB(3, 5, 3, 5),
+                                  child: Column(
+                                    children: const [
+                                      Icon(
+                                        Icons.picture_as_pdf,
+                                        color: Colors.redAccent,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                        child: Text("absen pdf"),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding:  const EdgeInsets.fromLTRB(3, 10, 3, 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const TampilFile()),
+                                );
+                              },
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Padding(
+                                  padding:  const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  child: Column(
+                                    children: const [
+                                      Icon(
+                                        Icons.list,
+                                        color: Colors.greenAccent,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                        child: Text("dafta file"),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
@@ -173,18 +282,48 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text(
-                      'Riwayat Kehadiran Bulan: ${selectedDate!.month} ${selectedDate!.year}',
-                      style:  const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Riwayat Kehadiran Bulan: ${selectedDate!.month} ${selectedDate!.year}',
+                          style:  const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                          child: ElevatedButton.icon(
+                              icon: const Icon(Icons.calendar_today),
+                              label: const Text('pilih bulan'),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.white10
+                              ),
+                              onPressed: () {
+                                showMonthPicker(
+                                  context: context,
+                                  firstDate: DateTime(DateTime.now().year - 1, 5),
+                                  lastDate: DateTime(DateTime.now().year + 1, 9),
+                                  initialDate: selectedDate ?? widget.initialDate,
+                                  locale: const Locale("id"),
+                                ).then((date) {
+                                  if (date != null) {
+                                    setState(() {
+                                      selectedDate = date;
+                                      futureBuilder = builder();
+                                    });
+                                  }
+                                });
+                              },
+                          ),
+                        )
+                      ],
                     ),
                     Expanded(
                       child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                          child:futureBuilder!,
+                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        child:futureBuilder!,
                       ),
                     ),
                   ],
@@ -193,61 +332,24 @@ class _HomeState extends State<Home> {
             ),
           ],
         ),
-        floatingActionButton: SpeedDial(
-          animatedIcon: AnimatedIcons.menu_close,
-          backgroundColor: Colors.blueAccent,
-          overlayColor: Colors.black,
-          overlayOpacity: 0.4,
-          openCloseDial: isDialOpen,
-          children: [
-            SpeedDialChild(
-                child: const Icon(Icons.add),
-                label: "tambah absen",
-                backgroundColor: Colors.white10,
-                labelBackgroundColor: Colors.white10,
-                onTap: () async {
-                  await pr!.show();
-                  String? id_pengguna = await SP().getSPref("id_pengguna");
-                  await AbsenController().createAbsen(id_pengguna!);
-                  await pr.hide();
-                }
-            ),
-            SpeedDialChild(
-                child: const Icon(Icons.picture_as_pdf),
-                label: "daftar hadir (pdf)",
-                backgroundColor: Colors.white10,
-                labelBackgroundColor: Colors.white10,
-                onTap: ()async {
-                  await pr!.show();
-                  await Pdf().createAbsenPDF(selectedDate);
-                  await pr.hide();
-                }
-            ),
-            SpeedDialChild(
-                child: const Icon(Icons.calendar_today),
-                label: "kalender",
-                backgroundColor: Colors.pinkAccent,
-                labelBackgroundColor: Colors.white10,
-                onTap: (){
-                  showMonthPicker(
-                    context: context,
-                    firstDate: DateTime(DateTime.now().year - 1, 5),
-                    lastDate: DateTime(DateTime.now().year + 1, 9),
-                    initialDate: selectedDate ?? widget.initialDate,
-                    locale: const Locale("id"),
-                  ).then((date) {
-                    if (date != null) {
-                      setState(() {
-                        selectedDate = date;
-                        futureBuilder = builder();
-                      });
-                    }
-                  });
-                }
-            ),
-          ],
-        ),
-      ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            await pr!.show();
+            DateTime d = DateTime.now();
+            if(Pdf().isWeekend(d.day, d)){
+              Toasting().showToast('absensi dihentikan "weekend"');
+            }
+            else if(d.hour > 9){
+              Toasting().showToast('anda terlambat absensi');
+            }
+            else{
+              String? id_pengguna = await SP().getSPref("id_pengguna");
+              await AbsenController().createAbsen(id_pengguna!);
+            }
+            await pr.hide();
+          },
+          child: const Icon(Icons.add),
+        )
     );
   }
 }

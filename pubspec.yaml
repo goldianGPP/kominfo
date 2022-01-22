@@ -43,6 +43,8 @@ dependencies:
   fraction: ^1.1.0
   shared_preferences: ^2.0.11
   basic_utils: ^3.9.4
+  permission_handler: 8.1.6
+  network_info_plus: 2.1.2
   flutter:
     sdk: flutter
 

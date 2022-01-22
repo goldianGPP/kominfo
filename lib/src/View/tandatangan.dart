@@ -5,6 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:kominfo/src/Controller/pengguna_controller.dart';
 import 'package:kominfo/src/View/mobile.dart';
 import 'package:kominfo/src/Widget/progress_dialog.dart';
+import 'package:kominfo/src/Widget/shared_preferences.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 class Tandatangan extends StatefulWidget {
@@ -22,6 +23,7 @@ class TandatanganState extends State<Tandatangan> {
   @override
   Widget build(BuildContext context) {
     ProgressDialog? pr = PG(context).setPg("menunggu...");
+
     final isDialOpen = ValueNotifier(false);
     return WillPopScope(
         onWillPop: () async {
@@ -54,14 +56,14 @@ class TandatanganState extends State<Tandatangan> {
               SpeedDialChild(
                   child: const Icon(Icons.restart_alt_rounded),
                   label: "gambar ulang",
-                  backgroundColor: Colors.white10,
+                  backgroundColor: Colors.white,
                   labelBackgroundColor: Colors.white10,
                   onTap: () {_points.clear();}
               ),
               SpeedDialChild(
                   child: const Icon(Icons.save),
                   label: "simpan",
-                  backgroundColor: Colors.white10,
+                  backgroundColor: Colors.white,
                   labelBackgroundColor: Colors.white10,
                   onTap: () async {
                     await pr!.show();
@@ -88,7 +90,8 @@ class TandatanganState extends State<Tandatangan> {
   setRenderedImage(BuildContext context) async {
     ui.Image image = await rendered;
     var pngBytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    await PenggunaController().upload(await imageSave(pngBytes!, 'signature.png'), "1");
+    var id = await SP().getSPref('id_pengguna');
+    await PenggunaController().upload(await imageSave(pngBytes!, 'signature.png'),  id!);
   }
 }
 

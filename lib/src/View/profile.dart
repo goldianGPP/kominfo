@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:kominfo/src/Controller/pengguna_controller.dart';
 import 'package:kominfo/src/Model/pengguna_model.dart';
+import 'package:kominfo/src/View/tampil_tandatangan.dart';
 import 'package:kominfo/src/View/tandatangan.dart';
 import 'package:kominfo/src/Widget/shared_preferences.dart';
 
@@ -51,7 +52,7 @@ class Profile extends StatelessWidget {
                 SpeedDialChild(
                     child: const Icon(Icons.add),
                     label: "masukkan tanda tangan",
-                    backgroundColor: Colors.white10,
+                    backgroundColor: Colors.white,
                     labelBackgroundColor: Colors.white10,
                     onTap: () {
                       Navigator.push(
@@ -63,12 +64,12 @@ class Profile extends StatelessWidget {
                 SpeedDialChild(
                     child: const Icon(Icons.remove_red_eye),
                     label: "tampil tanda tangan",
-                    backgroundColor: Colors.white10,
+                    backgroundColor: Colors.white,
                     labelBackgroundColor: Colors.white10,
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Tandatangan()),
+                        MaterialPageRoute(builder: (context) => const TampilTandatangan()),
                       );
                     }
                 ),

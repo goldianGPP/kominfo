@@ -8,7 +8,7 @@ import 'package:kominfo/src/View/toast.dart';
 import 'package:path/path.dart';
 
 class DAO{
-  final String base_url = "http://192.168.86.41:8082/kp/arsipIn/";
+  final String base_url = "http://192.168.107.41:8082/kp/arsipIn/";
 
   //Absen
   Future<List<AbsenModel>> fetchAbsen(id, date) async {
@@ -36,6 +36,19 @@ class DAO{
     } else {
       Toasting().showToast('gagal mendapatkan data absen');
       throw Exception('gagal mendapatkan data absen');
+    }
+  }
+  Future<List<AbsenModel>> fetchLibur() async {
+    final response = await http.get(
+      Uri.parse('${base_url}api/absen/libur'),
+    );
+
+    if (response.statusCode == 200) {
+      var list = jsonDecode(response.body);
+      return List<AbsenModel>.from(list.map((model)=> AbsenModel.fromJson(model)));
+    } else {
+      Toasting().showToast('gagal mendapatkan libur');
+      throw Exception('gagal mendapatkan libur');
     }
   }
 
@@ -70,7 +83,7 @@ class DAO{
       return PenggunaModel.fromJson(list);
     } else {
       Toasting().showToast('gagal mendapatkan profil');
-      throw Exception('gagal mendapatkan histori absen');
+      throw Exception('gagal mendapatkan profil');
     }
   }
 
@@ -101,7 +114,21 @@ class DAO{
   }
 
   //Arsip
-  Future<void> uploadsArsip(File pdfFile, ArsipModel arsip) async {
+  Future<List<ArsipModel>> fetchFile() async {
+    final response = await http.get(
+      Uri.parse('${base_url}api/arsip'),
+    );
+
+    if (response.statusCode == 200) {
+      var list = jsonDecode(response.body);
+      return List<ArsipModel>.from(list.map((model)=> ArsipModel.fromJson(model)));
+    } else {
+      Toasting().showToast('gagal mendapatkan file');
+      throw Exception('gagal mendapatkan file');
+    }
+  }
+
+  Future<bool> uploadsArsip(File pdfFile, ArsipModel arsip) async {
     var stream  = http.ByteStream(pdfFile.openRead()); stream.cast();
     var length = await pdfFile.length();
 
@@ -123,9 +150,11 @@ class DAO{
     var response = await request.send();
 
     if (response.statusCode == 200) {
-      Toasting().showToast('tandatangan disimpan');
+      Toasting().showToast('file disimpan');
+      return true;
     } else {
-      Toasting().showToast('tandatangan gagal disimpan');
+      Toasting().showToast('file gagal disimpan');
+      return false;
     }
   }
 }

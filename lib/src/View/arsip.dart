@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kominfo/src/Controller/arsip_controller.dart';
 import 'package:kominfo/src/Model/arsip_model.dart';
 import 'package:kominfo/src/View/pdf.dart';
+import 'package:kominfo/src/View/tampil_file.dart';
 import 'dart:core';
 
 import 'package:kominfo/src/Widget/progress_dialog.dart';
@@ -37,111 +39,132 @@ class _ArsipInState extends State<ArsipIn> {
 
   @override
   Widget build(BuildContext context) {
-    ProgressDialog? pg = PG(context).setPg("menunggu...");
+    final isDialOpen = ValueNotifier(false);
     File file;
 
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  elevation: 10,
-                  child: Scaffold(
-                    body: files.isEmpty ?
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Center(child: Icon(Icons.image),),
-                        Center(child: Text("masukkan gambar")),
-                      ],
-                    ) :
-                    ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: files.length,
-                      padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                      itemBuilder: (context, index) {
-                        return Stack(
-                          children: [
-                            Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                child: Center(child: Image.file(files.elementAt(index)))
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 5,
-                              child: ElevatedButton(
-                                onPressed: (() => {
-                                  setState(() async{
-                                    await pg!.show();
-                                    files.removeAt(index);
-                                    await pg.hide();
-                                  })
-                                }),
-                                child: const Icon(Icons.delete, color: Colors.red),
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(20),
-                                  primary: Colors.white,
-                                  onPrimary: Colors.red,
-                                  fixedSize:  const Size(30, 30),
+    return WillPopScope(
+        onWillPop: () async {
+          if(isDialOpen.value){
+            return isDialOpen.value = false;
+          }
+          return true;
+        },
+        child: Scaffold(
+          body: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      elevation: 10,
+                      child: files.isEmpty ?
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Center(child: Icon(Icons.image),),
+                          Center(child: Text("masukkan gambar")),
+                        ],
+                      ) :
+                      ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: files.length,
+                        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                  child: Center(child: Image.file(files.elementAt(index)))
+                              ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: ElevatedButton(
+                                  onPressed: (() => {
+                                    setState((){
+                                      files.removeAt(index);
+                                    })
+                                  }),
+                                  child: const Icon(Icons.delete, color: Colors.red),
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const CircleBorder(),
+                                    primary: Colors.white,
+                                    onPrimary: Colors.red,
+                                    fixedSize:  const Size(30, 30),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    floatingActionButton:
-                    files.isEmpty ? Container() :
-                    FloatingActionButton(
-                      onPressed: (() async => {
-                        file = await Pdf().createImagePDF(files),
-
-                        showDialog(
+                            ],
+                          );
+                        },
+                      ),
+                    )
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: SpeedDial(
+            animatedIcon: AnimatedIcons.menu_close,
+            backgroundColor: Colors.blueAccent,
+            overlayColor: Colors.black,
+            overlayOpacity: 0.4,
+            openCloseDial: isDialOpen,
+            children: [
+              files.isEmpty ? SpeedDialChild() :
+              SpeedDialChild(
+                  child: const Icon(Icons.save),
+                  label: "simpan",
+                  backgroundColor: Colors.white,
+                  labelBackgroundColor: Colors.white10,
+                  onTap: () async {
+                    file = await Pdf().createImagePDF(files);
+                    showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return MyDialog(file: file,);
-                        })
-                      }),
-                      child: const Icon(Icons.check),
-                      mini: true,
-                    ),
-                  ),
-                )
-            ),
+                        }
+                    ).then((cek) => {
+                      files = [],
+                    });
+                  }
+              ),
+              SpeedDialChild(
+                  child: const Icon(Icons.image),
+                  label: "galeri",
+                  backgroundColor: Colors.pinkAccent,
+                  labelBackgroundColor: Colors.white10,
+                  onTap: ()  {
+                    pickImage(ImageSource.gallery);
+                  }
+              ),
+              SpeedDialChild(
+                  child: const Icon(Icons.camera),
+                  label: "kamera",
+                  backgroundColor: Colors.lightBlueAccent,
+                  labelBackgroundColor: Colors.white10,
+                  onTap: () {
+                    pickImage(ImageSource.camera);
+                  }
+              ),
+              SpeedDialChild(
+                  child: const Icon(Icons.list),
+                  label: "list file",
+                  backgroundColor: Colors.lightBlueAccent,
+                  labelBackgroundColor: Colors.white10,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TampilFile()),
+                    );
+                  }
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 5, 20, 2),
-            child: ElevatedButton(
-                onPressed: (){
-                  pickImage(ImageSource.gallery);
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
-                ),
-                child: const Text("Galeri")
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 2, 20, 5),
-            child: ElevatedButton(
-                onPressed: (){
-                  pickImage(ImageSource.camera);
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
-                ),
-                child: const Text("Kamera")
-            ),
-          ),
-        ],
-      ),
+        )
     );
   }
 }
@@ -162,6 +185,7 @@ class _MyDialogState extends State<MyDialog> {
   bool isEnable = false;
 
   TextEditingController nama = TextEditingController();
+  TextEditingController tipe2 = TextEditingController();
 
   @override
   void initState() {
@@ -171,6 +195,8 @@ class _MyDialogState extends State<MyDialog> {
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog? pg = PG(context).setPg("menunggu...");
+
     return Dialog(
       shape: RoundedRectangleBorder(
           borderRadius:BorderRadius.circular(20.0)),
@@ -182,6 +208,7 @@ class _MyDialogState extends State<MyDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               child: TextFormField(
                 textInputAction: TextInputAction.go,
+                controller: nama,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   labelText: 'Nama File',
@@ -221,6 +248,7 @@ class _MyDialogState extends State<MyDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               child: TextFormField(
                 textInputAction: TextInputAction.go,
+                controller: tipe2,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   labelText: 'tipe',
@@ -231,14 +259,18 @@ class _MyDialogState extends State<MyDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               child: ElevatedButton(
                 onPressed: () async {
+                  await pg!.show();
                   String? id_pengguna = await SP().getSPref("id_pengguna");
-                  ArsipController()
+                  bool cek = await ArsipController()
                       .uploadsArsip(
                       file!, ArsipModel.none()
                       .setId_pengguna(id_pengguna!)
                       .setNama(nama.text)
-                      .setTipe(tipe!)
+                      .setTipe(tipe! != 'Lainnya' ? tipe! : tipe2.text)
                   );
+                  Navigator.pop(context, cek);
+                  await pg.hide();
+
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(40),
