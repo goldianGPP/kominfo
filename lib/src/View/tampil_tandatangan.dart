@@ -20,8 +20,14 @@ class _TampilTandatanganState extends State<TampilTandatangan> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: FutureBuilder(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Tandatangan"),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        automaticallyImplyLeading: true,
+      ),
+      body: FutureBuilder(
         future: SP().getSPref('tandatangan'),
           builder: (context, snapshot) {
             return Container(

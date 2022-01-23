@@ -24,6 +24,12 @@ class _TampilFileState extends State<TampilFile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Daftar File"),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        automaticallyImplyLeading: true,
+      ),
       body: FutureBuilder <List<ArsipModel>>(
         future: ArsipController().fetchFile(),
         builder: (context, snapshot){
@@ -46,8 +52,8 @@ class _TampilFileState extends State<TampilFile> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                     child:ListTile(
-                      title: Text(arsips.nama!),
-                      subtitle: Text(arsips.tipe!),
+                      title: Text('nama : ${arsips.nama!}'),
+                      subtitle: Text('tipe : ${arsips.tipe!}'),
                       onTap: () {
                         Navigator.push(
                           context,

@@ -26,6 +26,12 @@ class _TampilLiburState extends State<TampilLibur> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Daftar Libur"),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        automaticallyImplyLeading: true,
+      ),
       body: FutureBuilder <List<AbsenModel>>(
         future: AbsenController().fetchLibur(),
         builder: (context, snapshot){
@@ -48,8 +54,8 @@ class _TampilLiburState extends State<TampilLibur> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                     child:ListTile(
-                      title: Text(absen.tgl_libur),
-                      subtitle: Text(absen.deskripsi),
+                      title: Text('tanggal : ${absen.tgl_libur}'),
+                      subtitle: Text('deskripsi : ${absen.deskripsi}'),
                       onTap: () {
                       },
                     ),

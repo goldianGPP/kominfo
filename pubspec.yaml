@@ -45,6 +45,8 @@ dependencies:
   basic_utils: ^3.9.4
   permission_handler: 8.1.6
   network_info_plus: 2.1.2
+  url_launcher: 6.0.18
+  geolocator: 7.0.0
   flutter:
     sdk: flutter
 

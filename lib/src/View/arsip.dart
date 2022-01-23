@@ -122,14 +122,17 @@ class _ArsipInState extends State<ArsipIn> {
                   labelBackgroundColor: Colors.white10,
                   onTap: () async {
                     file = await Pdf().createImagePDF(files);
-                    showDialog(
+                    bool cek = await showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return MyDialog(file: file,);
                         }
-                    ).then((cek) => {
-                      files = [],
-                    });
+                    );
+                    if(cek){
+                      setState(() {
+                        files = [];
+                      });
+                    }
                   }
               ),
               SpeedDialChild(

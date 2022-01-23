@@ -8,7 +8,7 @@ import 'package:kominfo/src/View/toast.dart';
 import 'package:path/path.dart';
 
 class DAO{
-  final String base_url = "http://192.168.107.41:8082/kp/arsipIn/";
+  final String base_url = "http://192.168.54.41:8082/kp/arsipIn/";
 
   //Absen
   Future<List<AbsenModel>> fetchAbsen(id, date) async {
@@ -38,6 +38,7 @@ class DAO{
       throw Exception('gagal mendapatkan data absen');
     }
   }
+
   Future<List<AbsenModel>> fetchLibur() async {
     final response = await http.get(
       Uri.parse('${base_url}api/absen/libur'),
@@ -46,6 +47,19 @@ class DAO{
     if (response.statusCode == 200) {
       var list = jsonDecode(response.body);
       return List<AbsenModel>.from(list.map((model)=> AbsenModel.fromJson(model)));
+    } else {
+      Toasting().showToast('gagal mendapatkan libur');
+      throw Exception('gagal mendapatkan libur');
+    }
+  }
+
+  Future<bool> fetchKehadiran(id_pengguna) async {
+    final response = await http.get(
+      Uri.parse('${base_url}api/absen/status/$id_pengguna'),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
     } else {
       Toasting().showToast('gagal mendapatkan libur');
       throw Exception('gagal mendapatkan libur');
@@ -73,9 +87,9 @@ class DAO{
   }
 
   //Pengguna
-  Future<PenggunaModel> fetchPengguna(String nip) async {
+  Future<PenggunaModel> fetchPengguna(String id_pengguna) async {
     final response = await http.get(
-      Uri.parse('${base_url}api/pengguna/$nip'),
+      Uri.parse('${base_url}api/pengguna/$id_pengguna'),
     );
 
     if (response.statusCode == 200) {
@@ -87,7 +101,7 @@ class DAO{
     }
   }
 
-  Future<void> uploadSignature(File imageFile, String id_pengguna) async {
+  Future<bool> uploadSignature(File imageFile, String id_pengguna) async {
     var stream  = http.ByteStream(imageFile.openRead()); stream.cast();
     var length = await imageFile.length();
 
@@ -108,8 +122,10 @@ class DAO{
 
     if (response.statusCode == 200) {
       Toasting().showToast('tandatangan disimpan');
+      return true;
     } else {
       Toasting().showToast('tandatangan gagal disimpan');
+      return false;
     }
   }
 

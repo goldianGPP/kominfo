@@ -7,7 +7,8 @@ import 'package:kominfo/src/View/tandatangan.dart';
 import 'package:kominfo/src/Widget/shared_preferences.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({Key? key}) : super(key: key);
+  const Profile({Key? key, required this.id_pengguna}) : super(key: key);
+  final String? id_pengguna;
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +27,16 @@ class Profile extends StatelessWidget {
                 children: <Widget> [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const <Widget>[
-                      Padding(
+                    children: <Widget>[
+                      const Padding(
                         padding: EdgeInsets.fromLTRB(100, 50, 100, 50),
                         child: Image(
                           image: AssetImage("assets/logo.png"),
                         ),
                       ),
                       Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                          child: PenggunaProfile(),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: PenggunaProfile(id_pengguna: id_pengguna,),
                       ),
                     ],
                   ),
@@ -81,54 +82,52 @@ class Profile extends StatelessWidget {
 }
 
 class PenggunaProfile extends StatefulWidget {
-  const PenggunaProfile({Key? key}) : super(key: key);
+  const PenggunaProfile({Key? key, required this.id_pengguna}) : super(key: key);
+  final String? id_pengguna;
 
   @override
   _PenggunaProfileState createState() => _PenggunaProfileState();
 }
 
 class _PenggunaProfileState extends State<PenggunaProfile> {
-  String? nip;
+  String? id_pengguna;
+
+  @override
+  void initState() {
+    super.initState();
+    id_pengguna = widget.id_pengguna;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: SP().getSPref("nip"),
-      builder: (context, snapshot){
-        if(snapshot.hasData){
-          nip = snapshot.data! as String?;
-          return FutureBuilder<PenggunaModel>(
-              future: PenggunaController().fetchPengguna(nip!),
-              builder: (context, snapshot){
-                if(snapshot.hasData){
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      ListTile(
-                        title: const Text("NAMA"),
-                        subtitle: Text(snapshot.data!.nama),
-                      ),
-                      ListTile(
-                        title: const Text("JABATAN"),
-                        subtitle: Text(snapshot.data!.jabatan),
-                      ),
-                      ListTile(
-                        title: const Text("NIP"),
-                        subtitle: Text(snapshot.data!.nip),
-                      ),
-                      ListTile(
-                        title: const Text("TUGAS"),
-                        subtitle: Text(snapshot.data!.tugas),
-                      ),
-                    ],
-                  );
-                }
-                return const Center(child:CircularProgressIndicator());
-              }
-          );
+    return FutureBuilder<PenggunaModel>(
+        future: PenggunaController().fetchPengguna(id_pengguna!),
+        builder: (context, snapshot){
+          if(snapshot.hasData){
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ListTile(
+                  title: const Text("NAMA"),
+                  subtitle: Text(snapshot.data!.nama),
+                ),
+                ListTile(
+                  title: const Text("JABATAN"),
+                  subtitle: Text(snapshot.data!.jabatan),
+                ),
+                ListTile(
+                  title: const Text("NIP"),
+                  subtitle: Text(snapshot.data!.nip),
+                ),
+                ListTile(
+                  title: const Text("TUGAS"),
+                  subtitle: Text(snapshot.data!.tugas),
+                ),
+              ],
+            );
+          }
+          return const Center(child:CircularProgressIndicator());
         }
-        return const Center(child:CircularProgressIndicator());
-      },
     );
   }
 }

@@ -4,7 +4,8 @@ import 'package:kominfo/src/View/home.dart';
 import 'package:kominfo/src/View/profile.dart';
 
 class BottomNav extends StatefulWidget {
-  const BottomNav({Key? key}) : super(key: key);
+  const BottomNav({Key? key, required this.id_pengguna}) : super(key: key);
+  final String? id_pengguna;
 
   @override
   State<BottomNav> createState() => _navState();
@@ -13,11 +14,21 @@ class BottomNav extends StatefulWidget {
 // ignore: camel_case_types
 class _navState extends State<BottomNav> {
   int _selectedIndex = 0;
-  static final List<Widget> _widgetOptions = <Widget>[
-    Home(initialDate: DateTime.now()),
-    const ArsipIn(),
-    const Profile(),
-  ];
+  late String? id_pengguna;
+
+  @override
+  void initState() {
+    super.initState();
+    id_pengguna = widget.id_pengguna;
+  }
+
+  static List<Widget> _widgetOptions(id_pengguna) {
+    return <Widget>[
+      Home(initialDate: DateTime.now(), id_pengguna: id_pengguna,),
+      const ArsipIn(),
+      Profile(id_pengguna: id_pengguna,),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -29,7 +40,7 @@ class _navState extends State<BottomNav> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _widgetOptions(id_pengguna).elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

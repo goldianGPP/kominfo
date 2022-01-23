@@ -20,18 +20,16 @@ void main() async {
 }
 
 class Main extends StatelessWidget {
-  const Main({Key? key}) : super(key: key);
+  const Main({Key? key, required this.id_pengguna}) : super(key: key);
+  final String? id_pengguna;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("kominfo"),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+        child: BottomNav(id_pengguna: id_pengguna,),
       ),
-      body: const BottomNav(),
-
     );
   }
 }

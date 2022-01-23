@@ -23,4 +23,9 @@ class SP {
     return prefs!.getInt(key);
   }
 
+  Future<bool?> getBPref(String key) async {
+    prefs = await SharedPreferences.getInstance();
+    return prefs!.getBool(key);
+  }
+
 }

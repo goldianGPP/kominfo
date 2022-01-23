@@ -33,6 +33,12 @@ class TandatanganState extends State<Tandatangan> {
           return true;
         },
         child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Masukkan Tandatangan"),
+            centerTitle: true,
+            backgroundColor: Colors.blueAccent,
+            automaticallyImplyLeading: true,
+          ),
           body:  GestureDetector(
             onPanUpdate: (DragUpdateDetails details) {
               setState(() {
@@ -67,7 +73,10 @@ class TandatanganState extends State<Tandatangan> {
                   labelBackgroundColor: Colors.white10,
                   onTap: () async {
                     await pr!.show();
-                    await setRenderedImage(context);
+                    bool cek = await setRenderedImage(context);
+                    if(cek){
+                      Navigator.pop(context);
+                    }
                     await pr.hide();
                   }
               ),
@@ -87,11 +96,11 @@ class TandatanganState extends State<Tandatangan> {
         .toImage(size.width.floor(), size.height.floor());
   }
 
-  setRenderedImage(BuildContext context) async {
+  Future<bool> setRenderedImage(BuildContext context) async {
     ui.Image image = await rendered;
     var pngBytes = await image.toByteData(format: ui.ImageByteFormat.png);
     var id = await SP().getSPref('id_pengguna');
-    await PenggunaController().upload(await imageSave(pngBytes!, 'signature.png'),  id!);
+    return await PenggunaController().upload(await imageSave(pngBytes!, 'signature.png'),  id!);
   }
 }
 

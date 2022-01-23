@@ -19,4 +19,8 @@ class AbsenController {
   Future<List<AbsenModel>> fetchLibur() async {
     return await DAO().fetchLibur();
   }
+
+  Future<bool> fetchKehadiran(id_pengguna) async {
+    return await DAO().fetchKehadiran(id_pengguna);
+  }
 }

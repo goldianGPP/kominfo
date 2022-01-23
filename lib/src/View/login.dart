@@ -25,15 +25,15 @@ class Login extends StatelessWidget {
       penggunaModel = await PenggunaController().fetchPengguna(nip);
       if(penggunaModel.nip.isNotEmpty){
         sp.setPref("nip", penggunaModel.nip);
-        sp.setPref("id_pengguna", penggunaModel.id_pengguna);;
+        sp.setPref("id_pengguna", penggunaModel.id_pengguna);
         sp.setPref("tandatangan", penggunaModel.tandatangan);
         if(check.check){
           sp.setPref("cek", penggunaModel.nip);
         }
         await dialog.hide();
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Main()),
+          MaterialPageRoute(builder: (context) => Main(id_pengguna: penggunaModel.id_pengguna,)),
         );
       }
       await dialog.hide();
